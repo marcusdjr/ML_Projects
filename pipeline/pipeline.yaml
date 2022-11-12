@@ -1,6 +1,13 @@
 tasks:
-  # Add tasks here...
+- source: scripts/get.py
+  product:
+    nb: products/get.ipynb
+    data: products/get.csv
+  
+- source: scripts/process.py
+  product:
+    nb: products/process.ipynb
+    data: products/process.csv
 
-  # Example
-  # - source: path/to/script.py
-  #   product: products/report.ipynb
+- source: scripts/model.py
+  product: products/model.ipynb
