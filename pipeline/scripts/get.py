@@ -89,5 +89,5 @@ print("The test data size after dropping Id feature is : {} ".format(test.shape)
 
 train = pd.read_csv('train.csv')
 train.to_csv(product['data'], index=False)
-test = pd.read_csv('test.csv')
-test.to_csv(product['data'], index=False)
+
+# %%
