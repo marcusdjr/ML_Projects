@@ -15,7 +15,8 @@
 # %%
 # Add description here
 #
-# *Note:* You can open this file as a notebook (JupyterLab: right-click on it in the side bar -> Open With -> Notebook)
+# *Note:* You
+#can open this file as a notebook (JupyterLab: right-click on it in the side bar -> Open With -> Notebook)
 
 
 # %%
@@ -88,6 +89,9 @@ print("\nThe train data size after dropping Id feature is : {} ".format(train.sh
 print("The test data size after dropping Id feature is : {} ".format(test.shape))
 
 train = pd.read_csv('train.csv')
-train.to_csv(product['data'], index=False)
+train.to_csv(product['train'], index=False)
+
+test = pd.read_csv('test.csv')
+test.to_csv(product['test'], index=False)
 
 # %%

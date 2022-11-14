@@ -57,7 +57,10 @@ from scipy.stats import norm, skew #for some statistics
 pd.set_option('display.float_format', lambda x: '{:.3f}'.format(x)) #Limiting floats output to 3 decimal points
 
 # %%
-train = pd.read_csv(upstream['get']['data'])
+train = pd.read_csv(upstream['get']['train'])
+#train.to_csv(product['train'], index=False)
+test = pd.read_csv(upstream['get']['test'])
+#test.to_csv(product['test'], index=False)
 
 # %%
 ##Data Processing
@@ -146,7 +149,7 @@ missing_data.head(20)
 
 # %%
 #Showing the percentage of missing data of each feature
-f, ax = plt.subplots(figsize=(25, 15))
+f, ax = plt.subplots(figsize=(45, 15))
 plt.xticks(rotation='horizontal')
 sns.barplot(x=all_data_na.index, y=all_data_na)
 plt.xlabel('Features', fontsize=15)
@@ -166,18 +169,14 @@ all_data["PoolQC"] = all_data["PoolQC"].fillna("None")
 # %%
 all_data["MiscFeature"] = all_data["MiscFeature"].fillna("None")
 
-
 # %%
 all_data["Alley"] = all_data["Alley"].fillna("None")
-
 
 # %%
 all_data["Fence"] = all_data["Fence"].fillna("None")
 
-
 # %%
 all_data["FireplaceQu"] = all_data["FireplaceQu"].fillna("None")
-
 
 # %%
 #Filling in missing values by the median LotFrontage of the neighborhood
@@ -230,7 +229,6 @@ all_data['Exterior2nd'] = all_data['Exterior2nd'].fillna(all_data['Exterior2nd']
 # %%
 #SaleType : Fill in again with most frequent which is "WD"
 all_data['SaleType'] = all_data['SaleType'].fillna(all_data['SaleType'].mode()[0])
-
 
 # %%
 #Na most likely means No building class. We can replace missing values with None
@@ -313,6 +311,67 @@ train = all_data[:ntrain]
 test = all_data[ntrain:]
 
 # %%
-train.to_csv(product['data'], index=False)
+from sklearn.linear_model import ElasticNet, Lasso,  BayesianRidge, LassoLarsIC
+from sklearn.ensemble import RandomForestRegressor,  GradientBoostingRegressor
+from sklearn.kernel_ridge import KernelRidge
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import RobustScaler
+from sklearn.base import BaseEstimator, TransformerMixin, RegressorMixin, clone
+from sklearn.model_selection import KFold, cross_val_score, train_test_split
+from sklearn.metrics import mean_squared_error
+import xgboost as xgb
+import lightgbm as lgb
+
+# %%
+#Validation function
+n_folds = 5
+
+def rmsle_cv(model):
+    kf = KFold(n_folds, shuffle=True, random_state=42).get_n_splits(train.values)
+    rmse= np.sqrt(-cross_val_score(model, train.values, y_train, scoring="neg_mean_squared_error", cv = kf))
+    return(rmse)
+
+
+# %%
+#LASSO Regression, and making model more robust to outliers
+lasso = make_pipeline(RobustScaler(), Lasso(alpha =0.0005, random_state=1))
+
+# %%
+#Elastic Net Regression, and making model more robust to outliers
+ENet = make_pipeline(RobustScaler(), ElasticNet(alpha=0.0005, l1_ratio=.9, random_state=3))
+
+# %%
+#Kernel Ridge Regression
+KRR = KernelRidge(alpha=0.6, kernel='polynomial', degree=2, coef0=2.5)
+
+# %%
+#Gradient Boosting Regression, with loss=huber it makes the model robust to outliers
+GBoost = GradientBoostingRegressor(n_estimators=3000, learning_rate=0.05,
+                                   max_depth=4, max_features='sqrt',
+                                   min_samples_leaf=15, min_samples_split=10, 
+                                   loss='huber', random_state =5)
+
+# %%
+#XGBoost
+model_xgb = xgb.XGBRegressor(colsample_bytree=0.4603, gamma=0.0468, 
+                             learning_rate=0.05, max_depth=3, 
+                             min_child_weight=1.7817, n_estimators=2200,
+                             reg_alpha=0.4640, reg_lambda=0.8571,
+                             subsample=0.5213, silent=1,
+                             random_state =7, nthread = -1)
+
+# %%
+#LightGBM
+model_lgb = lgb.LGBMRegressor(objective='regression',num_leaves=5,
+                              learning_rate=0.05, n_estimators=720,
+                              max_bin = 55, bagging_fraction = 0.8,
+                              bagging_freq = 5, feature_fraction = 0.2319,
+                              feature_fraction_seed=9, bagging_seed=9,
+                              min_data_in_leaf =6, min_sum_hessian_in_leaf = 11)
+
+# %%
+#Lasso Score
+score = rmsle_cv(lasso)
+print("\nLasso score: {:.4f} ({:.4f})\n".format(score.mean(), score.std()))
 
 # %%

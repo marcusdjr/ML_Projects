@@ -2,12 +2,8 @@ tasks:
 - source: scripts/get.py
   product:
     nb: products/get.ipynb
-    data: products/get.csv
+    train: products/train.csv
+    test: products/test.csv
   
-- source: scripts/process.py
-  product:
-    nb: products/process.ipynb
-    data: products/process.csv
-
-- source: scripts/model.py
-  product: products/model.ipynb
+- source: scripts/process_model.py
+  product: products/process_model.ipynb
