@@ -1,11 +1,18 @@
 # ---
 # jupyter:
+#   jupytext:
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+#       jupytext_version: 1.14.0
 #   kernelspec:
-#     display_name: Python 3
+#     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
 
+# %%
 # Add description here
 #
 # *Note:* You can open this file as a notebook (JupyterLab: right-click on it in the side bar -> Open With -> Notebook)
@@ -21,11 +28,44 @@
 # %% tags=["parameters"]
 # If this task has dependencies, list them them here
 # (e.g. upstream = ['some_task']), otherwise leave as None.
-upstream = None
+upstream = ['process']
 
 # This is a placeholder, leave it as None
 product = None
 
 
 # %%
-# your code here...
+import numpy as np # linear algebra
+import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
+# %matplotlib inline
+import matplotlib.pyplot as plt  # Matlab-style plotting
+import seaborn as sns
+color = sns.color_palette()
+sns.set_style('darkgrid')
+import warnings
+def ignore_warn(*args, **kwargs):
+    pass
+warnings.warn = ignore_warn #ignore annoying warning (from sklearn and seaborn)
+
+
+from scipy import stats
+from scipy.stats import norm, skew #for some statistics
+
+
+pd.set_option('display.float_format', lambda x: '{:.3f}'.format(x)) #Limiting floats output to 3 decimal points
+
+train = pd.read_csv(upstream['process']['data'])
+
+# %%
+from sklearn.linear_model import ElasticNet, Lasso,  BayesianRidge, LassoLarsIC
+from sklearn.ensemble import RandomForestRegressor,  GradientBoostingRegressor
+from sklearn.kernel_ridge import KernelRidge
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import RobustScaler
+from sklearn.base import BaseEstimator, TransformerMixin, RegressorMixin, clone
+from sklearn.model_selection import KFold, cross_val_score, train_test_split
+from sklearn.metrics import mean_squared_error
+import xgboost as xgb
+import lightgbm as lgb
+
+# %%
