@@ -399,4 +399,40 @@ print("Xgboost score: {:.4f} ({:.4f})\n".format(score.mean(), score.std()))
 score = rmsle_cv(model_lgb)
 print("LGBM score: {:.4f} ({:.4f})\n" .format(score.mean(), score.std()))
 
+
+# %%
+#Stacking models
+
+# %%
+class AveragingModels(BaseEstimator, RegressorMixin, TransformerMixin):
+    def __init__(self, models):
+        self.models = models
+        
+    # we define clones of the original models to fit the data in
+    def fit(self, X, y):
+        self.models_ = [clone(x) for x in self.models]
+        
+        # Train cloned base models
+        for model in self.models_:
+            model.fit(X, y)
+
+        return self
+    
+    #Now we do the predictions for cloned models and average them
+    def predict(self, X):
+        predictions = np.column_stack([
+            model.predict(X) for model in self.models_
+        ])
+        return np.mean(predictions, axis=1)   
+
+
+# %%
+#Averaged score of these stacked models
+
+# %%
+averaged_models = AveragingModels(models = (ENet, GBoost, KRR, lasso))
+
+score = rmsle_cv(averaged_models)
+print(" Averaged base models score: {:.4f} ({:.4f})\n".format(score.mean(), score.std()))
+
 # %%
