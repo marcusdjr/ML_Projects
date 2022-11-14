@@ -375,3 +375,28 @@ score = rmsle_cv(lasso)
 print("\nLasso score: {:.4f} ({:.4f})\n".format(score.mean(), score.std()))
 
 # %%
+#ElasticNet Score
+score = rmsle_cv(ENet)
+print("ElasticNet score: {:.4f} ({:.4f})\n".format(score.mean(), score.std()))
+
+# %%
+#Kernel Ridge
+score = rmsle_cv(KRR)
+print("Kernel Ridge score: {:.4f} ({:.4f})\n".format(score.mean(), score.std()))
+
+# %%
+#Gradient Boosting score
+score = rmsle_cv(GBoost)
+print("Gradient Boosting score: {:.4f} ({:.4f})\n".format(score.mean(), score.std()))
+
+# %%
+#Xgboost score
+score = rmsle_cv(model_xgb)
+print("Xgboost score: {:.4f} ({:.4f})\n".format(score.mean(), score.std()))
+
+# %%
+#LGBM score
+score = rmsle_cv(model_lgb)
+print("LGBM score: {:.4f} ({:.4f})\n" .format(score.mean(), score.std()))
+
+# %%
